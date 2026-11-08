@@ -52,7 +52,7 @@ async function main() {
         console.log("Login may have expired. Refresh Google session.");
       } else {
         const claim = page.getByRole("button", {
-          name: /^\s*20\s*XP\s*$/i
+          name: /20\s*XP/i
         });
 
         if (await claim.isVisible().catch(() => false)) {
@@ -69,6 +69,7 @@ async function main() {
         waitUntil: "domcontentloaded",
         timeout: 90000
       }).catch(console.error);
+      await page.waitForTimeout(5000);
     }
   } finally {
     await browser.close();
