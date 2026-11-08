@@ -51,6 +51,15 @@ async function main() {
       if (/sign in with google|continue with google/i.test(body)) {
         console.log("Login may have expired. Refresh Google session.");
       } else {
+        const buttons = await page.locator("button").evaluateAll(elements =>
+          elements.map(button => ({
+            text: button.innerText.trim(),
+            ariaLabel: button.getAttribute("aria-label"),
+            disabled: button.disabled
+          }))
+        );
+
+        console.log("Visible buttons:", JSON.stringify(buttons));
         const claim = page.getByRole("button", {
           name: /20\s*XP/i
         });
