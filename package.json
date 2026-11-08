@@ -1,0 +1,12 @@
+﻿{
+  "name": "sweep-auto-claim",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js",
+    "auth": "node src/setup-auth.js"
+  },
+  "dependencies": {
+    "playwright": "1.56.1"
+  }
+}

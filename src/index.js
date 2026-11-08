@@ -1,0 +1,67 @@
+﻿const { chromium } = require("playwright");
+const fs = require("fs");
+
+const URL = process.env.WEBSITE_URL || "https://sweep.finance/airdrop";
+const INTERVAL = Number(process.env.INTERVAL_MINUTES || 30) * 60000;
+const AUTH = process.env.AUTH_STATE_PATH || "/data/storage-state.json";
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function main() {
+  if (!fs.existsSync(AUTH)) {
+    throw new Error("Missing Google login session: " + AUTH);
+  }
+
+  const browser = await chromium.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
+
+  const context = await browser.newContext({
+    storageState: AUTH
+  });
+
+  const page = await context.newPage();
+
+  console.log("Sweep monitor started.");
+
+  try {
+    await page.goto(URL, {
+      waitUntil: "domcontentloaded",
+      timeout: 90000
+    });
+
+    while (true) {
+      const body = await page.locator("body").innerText().catch(() => "");
+
+      if (/sign in with google|continue with google/i.test(body)) {
+        console.log("Login may have expired. Refresh Google session.");
+      } else {
+        const claim = page.getByRole("button", {
+          name: /^\s*20\s*XP\s*$/i
+        });
+
+        if (await claim.isVisible().catch(() => false)) {
+          console.log(new Date().toISOString(),
+            "20 XP claim button is available. Please verify and claim manually.");
+        } else {
+          console.log(new Date().toISOString(),
+            "Claim button not currently visible.");
+        }
+      }
+
+      await sleep(INTERVAL);
+      await page.reload({
+        waitUntil: "domcontentloaded",
+        timeout: 90000
+      }).catch(console.error);
+    }
+  } finally {
+    await browser.close();
+  }
+}
+
+main().catch(error => {
+  console.error(error);
+  process.exit(1);
+});
