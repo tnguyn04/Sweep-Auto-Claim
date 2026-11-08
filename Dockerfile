@@ -1,12 +1,14 @@
-﻿FROM mcr.microsoft.com/playwright:v1.56.1-noble
+﻿
+FROM mcr.microsoft.com/playwright:v1.56.1-noble
 
 WORKDIR /app
 
 COPY package*.json ./
+
 RUN npm install --omit=dev
 
 COPY . .
 
-RUN chmod +x start.sh
+ENV NODE_ENV=production
 
-CMD ["./start.sh"]
+CMD ["node", "src/index.js"]
