@@ -74,11 +74,13 @@ async function main() {
       }
 
       await sleep(INTERVAL);
-      await page.reload({
+      await page.goto(URL, {
         waitUntil: "domcontentloaded",
         timeout: 90000
-      }).catch(console.error);
+      });
+
       await page.waitForTimeout(5000);
+
       console.log("Current URL:", page.url());
       console.log("Page title:", await page.title());
 
@@ -86,6 +88,7 @@ async function main() {
         "Page text:",
         (await page.locator("body").innerText()).slice(0, 5000)
       );
+
       console.log(
         "Frames:",
         page.frames().map(frame => frame.url())
