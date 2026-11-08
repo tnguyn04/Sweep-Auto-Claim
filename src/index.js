@@ -8,6 +8,20 @@ const AUTH = process.env.AUTH_STATE_PATH || "/data/storage-state.json";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function main() {
+  const encodedAuthState = [
+      process.env.AUTH_STATE_BASE64_1,
+      process.env.AUTH_STATE_BASE64_2,
+      process.env.AUTH_STATE_BASE64_3
+    ].filter(Boolean).join("");
+
+    if (encodedAuthState) {
+      fs.mkdirSync("/data", { recursive: true });
+
+      fs.writeFileSync(
+        AUTH,
+        Buffer.from(encodedAuthState, "base64")
+      );
+    }
   if (!fs.existsSync(AUTH)) {
     throw new Error("Missing Google login session: " + AUTH);
   }

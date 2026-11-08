@@ -30,7 +30,10 @@ const path = require("path");
     const output = path.resolve("auth/storage-state.json");
     fs.mkdirSync(path.dirname(output), { recursive: true });
 
-    await context.storageState({ path: output });
+    await context.storageState({
+      path: output,
+      indexedDB: true
+    });
 
     console.log("Login session saved:", output);
   } finally {
